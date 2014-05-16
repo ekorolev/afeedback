@@ -1,0 +1,9 @@
+{
+  "author": {
+    "name": "Evgenii Korolev",
+    "email": "ea.korolev@mail.ru"
+  },
+  "name": "afeedback",
+  "description": "Module for control feedbacks.",
+  "version": "0.0.1"
+}
