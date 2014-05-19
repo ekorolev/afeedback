@@ -17,8 +17,9 @@ module.exports = function ( options ) {
 		create: create({
 			model: model,
 			email: server,
-			admin_email: options.SendEmailTo,
-			project_name: options.ProjectName
+			admin_email: options.SendMailTo,
+			project_name: options.ProjectName,
+			from: options.email.user
 		})
 	}
 }
@@ -53,19 +54,31 @@ function create( opts ) {
 			if (e) cb(e); else {
 				var message = {
 					text: feedback.body,
+					from: opts.from,
 					to: opts.admin_email,
-					subject: 'Отзыв на ' + opts.project_name
-				}
-				console.log(feedback);
+					subject: 'Отзыв на ' + opts.project_name,
+					attachment: [
+						{
+							data: "<html>" + 
+										" <body>" + 
+										"  <p><b>date</b>: " + feedback.date + "</p>" +
+										"  <p><b>email</b>: " + feedback.email + "</p>" + 
+										"  <p><b>text</b>: " + feedback.body + "</p>" +
+										" </body>" + 
+										"</html>",
+							alternative: true
+						}
+					]
+				};
 				email.send( message, function (e, message) {
 					if (e) {
 						// Письмо не отослано. Откатываем создание отзыва в базе данных
 						feedback.remove();
 						// Возвращаем ошибку
 						cb(e);
+						// Консоль
 					} else {
 						cb(null, feedback);
-						console.log(message, feedback);
 					}
 				})
 			}
