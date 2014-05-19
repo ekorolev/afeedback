@@ -17,7 +17,8 @@ module.exports = function ( options ) {
 		create: create({
 			model: model,
 			email: server,
-			admin_email: options.SendEmailTo
+			admin_email: options.SendEmailTo,
+			project_name: options.ProjectName
 		})
 	}
 }
@@ -52,13 +53,17 @@ function create( opts ) {
 			if (e) cb(e); else {
 				var message = {
 					text: feedback.body,
-					from: 'user@example.com',
 					to: opts.admin_email,
-					subject: 'Отзыв на сайте serpteam.ru'
+					subject: 'Отзыв на ' + opts.project_name
 				}
 				console.log(feedback);
 				email.send( message, function (e, message) {
-					if (e) cb(e); else {
+					if (e) {
+						// Письмо не отослано. Откатываем создание отзыва в базе данных
+						feedback.remove();
+						// Возвращаем ошибку
+						cb(e);
+					} else {
 						cb(null, feedback);
 						console.log(message, feedback);
 					}
